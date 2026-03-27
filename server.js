@@ -19,6 +19,13 @@ app.use(express.json());
 // ---------------------------------------------------------------------------
 app.use("/webhook", require("./controllers/webhookController"));
 
+// DEBUG endpoint — app nakkhi kay pathavto te baghayla
+app.post("/debug", (req, res) => {
+  console.log("🔍 DEBUG BODY:", JSON.stringify(req.body, null, 2));
+  console.log("🔍 DEBUG HEADERS:", JSON.stringify(req.headers, null, 2));
+  res.json({ received: req.body });
+});
+
 // Health check — UptimeRobot he ping karto to keep Render awake
 app.get("/", (req, res) =>
   res.json({
