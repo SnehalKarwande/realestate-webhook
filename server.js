@@ -7,26 +7,22 @@ const morgan = require("morgan");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ---------------------------------------------------------------------------
 // Middleware
-// ---------------------------------------------------------------------------
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
 
-// ---------------------------------------------------------------------------
-// Routes
-// ---------------------------------------------------------------------------
+// Connect the webhook controller
 app.use("/webhook", require("./controllers/webhookController"));
 
-// DEBUG endpoint — app nakkhi kay pathavto te baghayla
+// Debug endpoint
 app.post("/debug", (req, res) => {
   console.log("🔍 DEBUG BODY:", JSON.stringify(req.body, null, 2));
   console.log("🔍 DEBUG HEADERS:", JSON.stringify(req.headers, null, 2));
   res.json({ received: req.body });
 });
 
-// Health check — UptimeRobot he ping karto to keep Render awake
+// Health check
 app.get("/", (req, res) =>
   res.json({
     status: "Shubhstra Properties Bot v2.0 🚀 Running!",
@@ -34,9 +30,7 @@ app.get("/", (req, res) =>
   })
 );
 
-// ---------------------------------------------------------------------------
 // Global error handler
-// ---------------------------------------------------------------------------
 app.use((err, req, res, next) => {
   console.error("💥 Unhandled Error:", err.message);
   res.status(500).json({ replies: [{ message: "Something went wrong. Please try again." }] });
