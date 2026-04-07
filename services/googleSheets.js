@@ -1,5 +1,4 @@
 const { GoogleSpreadsheet } = require("google-spreadsheet");
-const creds = require("./service-account-creds.json"); // your service account JSON
 
 async function addLeadToSheet(data) {
   try {
@@ -7,7 +6,7 @@ async function addLeadToSheet(data) {
 
     const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID);
 
-    // Authenticate
+    // Authenticate using ENV variables only
     await doc.useServiceAccountAuth({
       client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
       private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
