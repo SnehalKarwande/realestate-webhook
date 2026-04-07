@@ -1,13 +1,13 @@
 /**
- * Local Webhook Tester
+ * Render Live Webhook Tester
  * Run: node test/test-webhook.js
  *
- * Server must be running on PORT 3000 (npm run dev)
+ * Server must be running on Render (https://realestate-webhook.onrender.com)
  */
 
-const http = require("http");
+const https = require("https");
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = "https://realestate-webhook.onrender.com";
 const SENDER = "919876543210"; // dummy phone number
 
 // ---------------------------------------------------------------------------
@@ -18,8 +18,8 @@ function sendMessage(message) {
     const body = JSON.stringify({ message, sender: SENDER });
 
     const options = {
-      hostname: "localhost",
-      port: 3000,
+      hostname: "realestate-webhook.onrender.com",
+      port: 443,
       path: "/webhook",
       method: "POST",
       headers: {
@@ -28,7 +28,7 @@ function sendMessage(message) {
       },
     };
 
-    const req = http.request(options, (res) => {
+    const req = https.request(options, (res) => {
       let data = "";
       res.on("data", (chunk) => (data += chunk));
       res.on("end", () => {
@@ -63,10 +63,10 @@ const TEST_CASES = [
 ];
 
 // ---------------------------------------------------------------------------
-// Run all tests sequentially (order matters for session flow)
+// Run all tests sequentially
 // ---------------------------------------------------------------------------
 async function runTests() {
-  console.log("🚀 Starting Webhook Tests...\n");
+  console.log("🚀 Starting Render Webhook Tests...\n");
   console.log("=".repeat(60));
 
   for (const test of TEST_CASES) {
