@@ -10,14 +10,15 @@ app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
 
-// ✅ ADD THIS
+// ✅ FIRST ADD THIS (IMPORTANT)
 app.get("/webhook", (req, res) => {
-  res.send("Webhook is live 🚀");
+  res.status(200).send("Webhook is live 🚀");
 });
 
-// Existing webhook
+// ✅ THEN THIS
 app.use("/webhook", require("./controllers/webhookController"));
 
+// Home route
 app.get("/", (req, res) => 
   res.json({ status: "Shubhstra Properties Bot 🚀 Running!", timestamp: new Date().toISOString() })
 );
