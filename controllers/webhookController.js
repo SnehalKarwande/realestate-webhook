@@ -1,22 +1,19 @@
 const express = require("express");
 const router = express.Router();
+const { addLeadToSheet } = require("../services/googleSheets");
 
 router.post("/", async (req, res) => {
   try {
-    console.log("📥 Incoming:", JSON.stringify(req.body, null, 2));
+    console.log("📩 Incoming:", JSON.stringify(req.body, null, 2));
 
-    const message =
-      req.body?.query?.message ||
-      req.body?.message ||
-      "";
+    const message = (req.body.query?.message || "").toLowerCase().trim();
+    const phone = req.body.query?.sender || "Unknown";
+    const projectName = "Shubhstra Properties";
 
-    const cleanMessage = message.toString().trim().toLowerCase();
+    let reply = "";
 
-    console.log("💬 User message:", cleanMessage);
-
-    let reply = `*Automatic reply*
-
-Hello! 👋
+    if (message === "hi" || message === "hello" || message === "start") {
+      reply = `*Automatic reply*\nHello! 👋
 Welcome to *Shubhstra Properties* 🏢✨
 
 We specialize in premium homes in Wakad & Hinjewadi.
@@ -29,11 +26,10 @@ Please choose an option:
 3️⃣ Book a Free Site Visit 🚗
 4️⃣ Talk to Property Expert 📞`;
 
-    // Option 1
-    if (cleanMessage === "1") {
-      reply = `*Automatic reply*
+      await addLeadToSheet({ name: projectName, phone, message: "Welcome Inquiry" });
 
-Great choice! 😍
+    } else if (message === "1") {
+      reply = `*Automatic reply*\nGreat choice! 😍
 
 We have handpicked premium 2BHK & 3BHK homes in *Wakad & Hinjewadi* — perfect for both living & investment 🏙️
 
@@ -45,13 +41,11 @@ We have handpicked premium 2BHK & 3BHK homes in *Wakad & Hinjewadi* — perfect 
 ✨ Excellent Rental & Resale Value
 
 🚗 *Limited slots available for site visits today!*`;
-    }
 
-    // Option 2
-    if (cleanMessage === "2") {
-      reply = `*Automatic reply*
+      await addLeadToSheet({ name: projectName, phone, message: "2BHK/3BHK Interest" });
 
-Here’s your project brochure 📄✨
+    } else if (message === "2") {
+      reply = `*Automatic reply*\nHere’s your project brochure 📄✨
 
 https://drive.google.com/file/d/1aCKEUnkp8vZhZsGfH2ypJB0YW6q-0TqY/view?usp=drivesdk
 
@@ -61,13 +55,11 @@ Take a look and let me know your thoughts 😊
 
 🚗 Want to visit the site and see it in real?
 Type *VISIT* to book your FREE site visit with pickup & drop`;
-    }
 
-    // Option 3
-    if (cleanMessage === "3" || cleanMessage === "visit") {
-      reply = `*Automatic reply*
+      await addLeadToSheet({ name: projectName, phone, message: "Brochure Request" });
 
-Excellent choice! 🚗✨
+    } else if (message === "3" || message === "visit") {
+      reply = `*Automatic reply*\nExcellent choice! 🚗✨
 
 We’d love to show you the project in person — it’s even better than the photos 😊
 
@@ -81,13 +73,11 @@ We’d love to show you the project in person — it’s even better than the ph
 https://calendly.com/services-shubhstra/free-site-visit-shubhstra-properties
 
 Our senior property expert will call you within 5 minutes to confirm your visit 🤝`;
-    }
 
-    // Option 4
-    if (cleanMessage === "4") {
-      reply = `*Automatic reply*
+      await addLeadToSheet({ name: projectName, phone, message: "Site Visit Booking" });
 
-You’re in good hands! 😊🏢
+    } else if (message === "4") {
+      reply = `*Automatic reply*\nYou’re in good hands! 😊🏢
 
 Our property specialist will guide you with the best options based on your budget and requirements ✨
 
@@ -99,27 +89,21 @@ Our property specialist will guide you with the best options based on your budge
 📞 Just share your *name* and *phone number*
 
 Our expert will connect with you shortly for a personalized consultation 🤝`;
+
+      await addLeadToSheet({ name: projectName, phone, message: "Talk to Expert" });
+
+    } else {
+      reply = `Choose an option: 1️⃣ 2BHK & 3BHK 2️⃣ Brochure 3️⃣ Site Visit 4️⃣ Expert`;
     }
 
-    res.json({
-      replies: [
-        {
-          message: reply,
-        },
-      ],
-    });
+    res.status(200).json({ replies: [{ message: reply }] });
 
   } catch (error) {
-    console.log("❌ Error:", error.message);
-
-    res.json({
-      replies: [
-        {
-          message: "Server error. Please try again.",
-        },
-      ],
-    });
+    console.error("💥 Webhook Error:", error.message);
+    res.status(500).json({ replies: [{ message: "Something went wrong" }] });
   }
 });
+
+router.get("/", (req, res) => res.send("Webhook working ✅"));
 
 module.exports = router;
